@@ -2,6 +2,8 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import url from 'url';
+import querystring from 'querystring';
+import handleUserRegistration from './userRegistration.js';
 
 const filename = new URL(import.meta.url).pathname;
 let dirname = path.dirname(filename);
@@ -45,12 +47,9 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    req.on('data', (chunk) => {
-        console.log(chunk + '');
-    });
-
     let htmlFilePath = '';
     const pageUrl = url.parse(req.url);
+    let errorString = '';
 
     switch (pageUrl.pathname) {
         case '/index':
@@ -64,12 +63,24 @@ const server = http.createServer((req, res) => {
             htmlFilePath = path.join(dirname, 'public', 'content', 'articles.html');
             break;
         case '/register':
+            handleUserRegistration(req);
+            
             htmlFilePath = path.join(dirname, 'public', 'content', 'register.html');
             break;
         default:
             htmlFilePath = path.join(dirname, 'public', 'content', '404.html');
     }
-    const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+    
+    renderView(htmlFilePath, errorString, dirname, res);
+});
+server.listen(3000, () => {
+    console.log('Server is up and running');
+});
+
+function renderView(htmlFilePath, errorString, dirname, res) {
+    let htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
+    htmlContent = htmlContent.replace('{{errors}}', errorString);
+
 
     const htmlHeaderPath = path.join(dirname, 'public', 'parts', 'header.html');
     const htmlHeaderContent = fs.readFileSync(htmlHeaderPath, 'utf8');
@@ -79,7 +90,4 @@ const server = http.createServer((req, res) => {
     const content = htmlHeaderContent + htmlContent + htmlFooterContent;
 
     res.end(content);
-});
-server.listen(3000, () => {
-    console.log('Server is up and running');
-});
+}
