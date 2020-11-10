@@ -1,11 +1,12 @@
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
+import url from 'url';
 
 const filename = new URL(import.meta.url).pathname;
-const dirname = path.dirname(filename);
-
-
+let dirname = path.dirname(filename);
+dirname = './';
+console.log(dirname);
 const server = http.createServer((req, res) => {
     const fileExt = path.extname(req.url);
     if (fileExt !== '') {
@@ -44,9 +45,14 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let htmlFilePath = '';
+    req.on('data', (chunk) => {
+        console.log(chunk + '');
+    });
 
-    switch (req.url) {
+    let htmlFilePath = '';
+    const pageUrl = url.parse(req.url);
+
+    switch (pageUrl.pathname) {
         case '/index':
         case '/':
             htmlFilePath = path.join(dirname, 'public', 'content', 'index.html');
@@ -56,6 +62,9 @@ const server = http.createServer((req, res) => {
             break;
         case '/articles':
             htmlFilePath = path.join(dirname, 'public', 'content', 'articles.html');
+            break;
+        case '/register':
+            htmlFilePath = path.join(dirname, 'public', 'content', 'register.html');
             break;
         default:
             htmlFilePath = path.join(dirname, 'public', 'content', '404.html');
