@@ -47,37 +47,42 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let htmlFilePath = '';
+
     const pageUrl = url.parse(req.url);
-    let errorString = '';
 
     switch (pageUrl.pathname) {
         case '/index':
         case '/':
-            htmlFilePath = path.join(dirname, 'public', 'content', 'index.html');
+            renderView('index.html', '', dirname, res);
             break;
         case '/about-us':
-            htmlFilePath = path.join(dirname, 'public', 'content', 'about-us.html');
+            renderView('about-us.html', '', dirname, res);
             break;
         case '/articles':
-            htmlFilePath = path.join(dirname, 'public', 'content', 'articles.html');
+            renderView('articles.html', '', dirname, res);
+            break;
+        case '/registration-successfull':
+            renderView('registration-successfull.html', '', dirname, res);
             break;
         case '/register':
-            handleUserRegistration(req);
-            
-            htmlFilePath = path.join(dirname, 'public', 'content', 'register.html');
+            if (req.method === 'POST') {
+                handleUserRegistration(req, res, (errorString) => {
+                    renderView('register.html', errorString, dirname, res);
+                });
+            } else {
+                renderView('register.html', '', dirname, res);
+            }
             break;
         default:
-            htmlFilePath = path.join(dirname, 'public', 'content', '404.html');
+            renderView('404.html', '', dirname, res);
     }
-    
-    renderView(htmlFilePath, errorString, dirname, res);
 });
 server.listen(3000, () => {
     console.log('Server is up and running');
 });
 
-function renderView(htmlFilePath, errorString, dirname, res) {
+function renderView(htmlFileName, errorString, dirname, res) {
+    let htmlFilePath = path.join(dirname, 'public', 'content', htmlFileName);
     let htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
     htmlContent = htmlContent.replace('{{errors}}', errorString);
 
