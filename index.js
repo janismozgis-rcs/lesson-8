@@ -2,7 +2,6 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import url from 'url';
-import querystring from 'querystring';
 import handleUserRegistration from './userRegistration.js';
 
 const filename = new URL(import.meta.url).pathname;

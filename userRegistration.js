@@ -16,6 +16,8 @@ const saveUser = (formData) => {
         email: formData.email,
         firstName: formData['first-name'],
         password: formData.password,
+        lastName: formData['last-name'],
+        country: formData.country,
     });
     // 3. save the new array with the new user
     const newDataString = JSON.stringify(existingData);
@@ -44,6 +46,22 @@ const handleUserRegistration = (req, res, onErrorCallback) => {
         const emailRegexp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
         if (!emailRegexp.test(formData.email)) {
             errors.push('Invalid email');
+        }
+
+        if (!formData['last-name'] || formData['last-name'] === '') {
+            errors.push('Last name is required field');
+        }
+
+        if (!formData['retype-password'] || formData['retype-password'] !== formData.password) {
+            errors.push('Password must match');
+        }
+
+        if (!formData.password || formData.password.length < 8) {
+            errors.push('Password must be at least 8 symbols long');
+        }
+
+        if (!formData.country || formData.country === '') {
+            errors.push('Please select country');
         }
 
         // todo:
